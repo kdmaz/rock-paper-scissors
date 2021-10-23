@@ -17,13 +17,12 @@ fn main() {
 
         let result = get_result(&user_choice, &computer_choice);
 
-        let game_status = GameStatus {
+        GameStatus {
             user_choice,
             computer_choice,
             result,
-        };
-
-        game_status.print_game_result();
+        }
+        .print_game_result();
 
         if !play_again() {
             break;
