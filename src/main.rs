@@ -5,12 +5,11 @@ fn main() {
     loop {
         println!("Rock, paper, or scissors?");
 
-        let user_choice = match get_user_choice() {
-            Some(choice) => choice,
-            None => {
-                println!("Ya gotta pick rock, paper, or scissors!");
-                continue;
-            }
+        let user_choice = if let Some(choice) = get_user_choice() {
+            choice
+        } else {
+            println!("Ya gotta pick rock, paper, or scissors!");
+            continue;
         };
 
         let computer_choice = get_computer_choice();
