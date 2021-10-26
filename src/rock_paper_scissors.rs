@@ -79,8 +79,8 @@ fn get_user_choice() -> Option<CHOICE> {
     io::stdin()
         .read_line(&mut user_choice)
         .expect("Error reading line");
-    user_choice = user_choice.trim().to_lowercase();
-    match user_choice.as_str() {
+    let user_choice = &*user_choice.trim().to_lowercase();
+    match user_choice {
         "rock" => Some(CHOICE::Rock),
         "paper" => Some(CHOICE::Paper),
         "scissors" => Some(CHOICE::Scissors),
