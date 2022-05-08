@@ -1,6 +1,29 @@
 use rand::Rng;
 use std::{fmt, io};
 
+pub fn play() {
+    fn play_again() -> bool {
+        println!("\nDo you want to play again? (y/n)");
+        let mut play_again = String::new();
+        io::stdin().read_line(&mut play_again).unwrap();
+        play_again.trim() == "y"
+    }
+
+    let mut stats = Stats::new();
+
+    loop {
+        let game = Game::new();
+        stats.update(&game.game_result);
+
+        println!("{}", stats);
+        println!("{}", game);
+
+        if !play_again() {
+            break;
+        }
+    }
+}
+
 #[derive(PartialEq)]
 enum Choice {
     Rock,
@@ -68,61 +91,83 @@ enum GameResult {
     Loss,
     Draw,
 }
+impl GameResult {
+    fn get(user_choice: &UserChoice, computer_choice: &ComputerChoice) -> Self {
+        match (&user_choice.0, &computer_choice.0) {
+            (Choice::Rock, Choice::Scissors)
+            | (Choice::Paper, Choice::Rock)
+            | (Choice::Scissors, Choice::Paper) => GameResult::Win,
+            (_, _) if &user_choice.0 == &computer_choice.0 => GameResult::Draw,
+            (_, _) => GameResult::Loss,
+        }
+    }
+}
 impl fmt::Display for GameResult {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let message = match self {
             Self::Win => "You won!",
             Self::Loss => "You lost!",
-            Self::Draw => "The game was a draw.",
+            Self::Draw => "The game is a draw.",
         };
         write!(f, "{}", message)
     }
 }
 
-pub struct Game {
+struct Stats {
+    wins: i32,
+    losses: i32,
+    draws: i32,
+}
+impl Stats {
+    fn new() -> Self {
+        Stats {
+            wins: 0,
+            losses: 0,
+            draws: 0,
+        }
+    }
+
+    fn update(&mut self, game_result: &GameResult) {
+        match game_result {
+            GameResult::Win => self.wins += 1,
+            GameResult::Loss => self.losses += 1,
+            GameResult::Draw => self.draws += 1,
+        };
+    }
+}
+impl fmt::Display for Stats {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let stats = format!(
+            "\nWins: {}\nLosses: {}\nDraws: {}",
+            self.wins, self.losses, self.draws
+        );
+        write!(f, "{}", stats)
+    }
+}
+
+struct Game {
     user_choice: UserChoice,
     computer_choice: ComputerChoice,
+    game_result: GameResult,
 }
 impl Game {
-    pub fn new() {
-        loop {
-            Self {
-                user_choice: UserChoice::get(),
-                computer_choice: ComputerChoice::get(),
-            }
-            .print_result();
-
-            if !Self::play_again() {
-                break;
-            }
+    fn new() -> Game {
+        let user_choice = UserChoice::get();
+        let computer_choice = ComputerChoice::get();
+        let game_result = GameResult::get(&user_choice, &computer_choice);
+        Game {
+            user_choice,
+            computer_choice,
+            game_result,
         }
     }
-
-    fn print_result(&self) {
-        println!(
-            "You chose {} and the computer chose {}. {}",
-            self.user_choice.0,
-            self.computer_choice.0,
-            self.get_game_result()
-        );
-    }
-
-    fn get_game_result(&self) -> GameResult {
-        let user_choice = &self.user_choice.0;
-        let computer_choice = &self.computer_choice.0;
-        match (user_choice, computer_choice) {
-            (Choice::Rock, Choice::Scissors)
-            | (Choice::Paper, Choice::Rock)
-            | (Choice::Scissors, Choice::Paper) => GameResult::Win,
-            (_, _) if user_choice == computer_choice => GameResult::Draw,
-            (_, _) => GameResult::Loss,
-        }
-    }
-
-    fn play_again() -> bool {
-        println!("Do you want to play again? (y/n)");
-        let mut play_again = String::new();
-        io::stdin().read_line(&mut play_again).unwrap();
-        play_again.contains("y")
+}
+impl fmt::Display for Game {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "\nYou chose {} and computer chose {}. {}",
+            self.user_choice.0, self.computer_choice.0, self.game_result
+        )
     }
 }
