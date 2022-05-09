@@ -4,9 +4,9 @@ use std::{fmt, io};
 pub fn play() {
     fn play_again() -> bool {
         println!("\nDo you want to play again? (y/n)");
-        let mut play_again = String::new();
-        io::stdin().read_line(&mut play_again).unwrap();
-        play_again.trim() == "y"
+        let mut input_buffer = String::new();
+        io::stdin().read_line(&mut input_buffer).unwrap();
+        input_buffer.trim() == "y"
     }
 
     let mut stats = Stats::new();
@@ -46,9 +46,9 @@ impl UserChoice {
     fn get() -> Self {
         loop {
             println!("Rock, paper, or scissors?");
-            let mut user_choice = String::new();
-            io::stdin().read_line(&mut user_choice).unwrap();
-            if let Ok(choice) = user_choice.as_str().try_into() {
+            let mut input_buffer = String::new();
+            io::stdin().read_line(&mut input_buffer).unwrap();
+            if let Ok(choice) = input_buffer.as_str().try_into() {
                 return choice;
             } else {
                 println!("Ya gotta pick rock, paper, or scissors!");
